@@ -1,0 +1,80 @@
+def callback_handler(call):
+    global game
+    global board
+    if game:
+        index = int(call.data) - 1
+        if is_valid_move(board, index):
+            make_move(board, index, 'X')
+            winner = check_winner(board)
+            if winner:
+                reply_markup = types.InlineKeyboardMarkup()
+                buttons = []
+                for i in range(0, 9):
+                    if is_empty(board, i):
+                        buttons.append(types.InlineKeyboardButton(text=' ', callback_data=str(i + 1)))
+                    else:
+                        buttons.append(types.InlineKeyboardButton(text=board[i], callback_data=str(i + 1)))
+                reply_markup.row(buttons[0], buttons[1], buttons[2])
+                reply_markup.row(buttons[3], buttons[4], buttons[5])
+                reply_markup.row(buttons[6], buttons[7], buttons[8])
+                bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id,
+                                                reply_markup=reply_markup)
+                reply_markup = types.ReplyKeyboardRemove()
+                bot.send_message(call.message.chat.id, f'Выиграли {winner}!', reply_markup=reply_markup)
+                game = False
+            else:
+                if nbw(board):
+                    index = get_computer_move(board)
+                    print(index)
+                    make_move(board, index, 'O')
+                    winner = check_winner(board)
+                    if winner:
+                        reply_markup = types.InlineKeyboardMarkup()
+                        buttons = []
+                        for i in range(0, 9):
+                            if is_empty(board, i):
+                                buttons.append(types.InlineKeyboardButton(text=' ', callback_data=str(i + 1)))
+                            else:
+                                buttons.append(types.InlineKeyboardButton(text=board[i], callback_data=str(i + 1)))
+                        reply_markup.row(buttons[0], buttons[1], buttons[2])
+                        reply_markup.row(buttons[3], buttons[4], buttons[5])
+                        reply_markup.row(buttons[6], buttons[7], buttons[8])
+                        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id,
+                                                        reply_markup=reply_markup)
+
+                        reply_markup = types.ReplyKeyboardRemove()
+                        bot.send_message(call.message.chat.id, f'Выиграли {winner}!', reply_markup=reply_markup)
+                        game = False
+                    else:
+                        reply_markup = types.InlineKeyboardMarkup()
+                        buttons = []
+                        for i in range(0, 9):
+                            if is_empty(board, i):
+                                buttons.append(types.InlineKeyboardButton(text=' ', callback_data=str(i + 1)))
+                            else:
+                                buttons.append(types.InlineKeyboardButton(text=board[i], callback_data=str(i + 1)))
+                        reply_markup.row(buttons[0], buttons[1], buttons[2])
+                        reply_markup.row(buttons[3], buttons[4], buttons[5])
+                        reply_markup.row(buttons[6], buttons[7], buttons[8])
+                        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id,
+                                                      reply_markup=reply_markup)
+                else:
+                    reply_markup = types.InlineKeyboardMarkup()
+                    buttons = []
+                    for i in range(0, 9):
+                        if is_empty(board, i):
+                            buttons.append(types.InlineKeyboardButton(text=' ', callback_data=str(i + 1)))
+                        else:
+                            buttons.append(types.InlineKeyboardButton(text=board[i], callback_data=str(i + 1)))
+                    reply_markup.row(buttons[0], buttons[1], buttons[2])
+                    reply_markup.row(buttons[3], buttons[4], buttons[5])
+                    reply_markup.row(buttons[6], buttons[7], buttons[8])
+                    bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id,
+                                                reply_markup=reply_markup)
+                    bot.send_message(call.message.chat.id, f'Победила дружба!', reply_markup=reply_markup)
+                    game = False
+
+        else:
+                bot.answer_callback_query(call.id, 'Неверный ход. Попробуйте еще раз!')
+    else:
+        bot.answer_callback_query(call.id, 'Игра окончена. Нажмите /start, чтобы начать новую игру.')
